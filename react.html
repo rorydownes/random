@@ -1,0 +1,148 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>React Application</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.2/marked.min.js"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="app"></div>
+<script type="text/babel">
+    var AppContainer = React.createClass({
+        getInitialState: function() {
+            return{
+                groupsData: []
+            };
+        },
+        componentDidMount: function() {
+            console.log(this.props);
+            $.ajax({
+                url: this.props.url + "/groups",
+                dataType: 'json',
+                cache: false,
+                success: function(data) {
+                    console.log(data);
+                    this.setState({ groupsData: data });
+                }.bind(this),
+                error: function(xhr, status, error) {
+                    // console.error(this.props.url, status, error.toString());
+                }
+            });
+
+        },
+        render: function() {
+            console.log(this.state);
+            return(
+                <div className="appContainer container">
+                    <div className="row">
+                        <GroupContainer groupsData={this.props.groupsData} />
+                        <MessageContainer messageData={this.props.messageData} />
+                    </div>
+                </div>
+            );
+        }
+    });
+
+    var GroupContainer = React.createClass({
+        render: function() {
+            return(
+                <div className="col-md-2">
+                    <GroupListContainer groups={this.props.groupsData} />
+                </div>
+            );
+        }
+    });
+
+    var GroupListContainer = React.createClass({
+        render: function() {
+            var groupNodes = this.props.groups.map(function(group) {
+                return (
+                    <Group key={group.groupID} name={group.name} />
+                );
+            });
+
+            return (
+                <div>{groupNodes}</div>
+            );
+        }
+    });
+
+    var Group = React.createClass({
+        render: function() {
+            return(
+                <div>
+                    {this.props.name}
+                </div>
+            );
+        }
+    });
+
+    var MessageContainer = React.createClass({
+        render: function() {
+            return(
+                <div className="col-md-10">
+                    <MessageListContainer messages={this.props.messageData} />
+                </div>
+            );
+        }
+    });
+
+    var MessageListContainer = React.createClass({
+        render: function() {
+            var messageNodes = this.props.messages.map(function(message) {
+                return (
+                    <Message key={message.messageID} author={message.author} text={message.text} />
+                );
+            });
+            return(
+                <div>
+                    {messageNodes}
+                    <MessageForm />
+                </div>
+            );
+        }
+    });
+
+    var Message = React.createClass({
+        render: function() {
+            return(
+                <div><b>{this.props.author}:</b> {this.props.text}</div>
+            );
+        }
+    });
+
+    var MessageForm = React.createClass({
+        render: function() {
+            return(
+                <div>MessageForm</div>
+            );
+        }
+    });
+
+    var groupsData = [
+        { groupID: 1, name: 'Group 1' },
+        { groupID: 2, name: 'Group 2' },
+        { groupID: 3, name: 'Group 3' },
+        { groupID: 4, name: 'Group 4' },
+        { groupID: 5, name: 'Group 5' }
+    ];
+
+    var messageData = [
+        { messageID: 1, author: "Rory Downes", text: 'Angular' },
+        { messageID: 2, author: "Rory Downes", text: 'React' }
+    ]
+
+    ReactDOM.render(
+        <AppContainer url="http://otache.com/api" groupsData={groupsData} messageData={messageData} />, document.getElementById('app')
+    );
+</script>
+</body>
+</html>
